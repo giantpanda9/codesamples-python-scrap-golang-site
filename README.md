@@ -9,4 +9,4 @@ Scrapy installation (based on https://linoxide.com/ubuntu-how-to/scrapy-install-
 
 How to run?
 1) cd codesampleScrapGoSite
-2) scrapy crawl scrapGoPageSpider -o /home/nik/scrapyOutput/output/output.json
+2) scrapy crawl scrapGoPageSpider -o /path/to/scrapyOutput/output/output.json
