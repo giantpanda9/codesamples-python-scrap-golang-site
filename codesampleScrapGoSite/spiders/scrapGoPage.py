@@ -28,16 +28,22 @@ class scrapGoPageSpider(scrapy.Spider):
 		baseurl = 'https://golang.org/pkg'
 		packageslinklist = scrapypath.xpath('//*[contains(@class, "pkg-name")]//a/@href').extract()
 		packagestextlist = scrapypath.xpath('//*[contains(@class, "pkg-name")]//a/text()').extract()
-		packagesdesclist = scrapypath.xpath('//*[contains(@class, "pkg-synopsis")]//a/text()').extract()
+		packagesdesclist = scrapypath.xpath('//*[contains(@class, "pkg-synopsis")]/text()').extract()
 		packagestextcount = len(packagestextlist)
-		returned = {}
+		
+		returnedArray = []
 		for i in range(2, int(packagestextcount)):
-			returned[str(packagestextlist[i])] = {}
+			returned = {}
+			returned['name'] = str(packagestextlist[i])
 			if i <= len(packageslinklist):
-				returned[str(packagestextlist[i])]['url'] = baseurl + "/" + packageslinklist[i] 
+				returned['url'] = baseurl + "/" + packageslinklist[i] 
 			if i <= len(packagesdesclist):
-				returned[str(packagestextlist[i])]['description'] = packagesdesclist[i] 
-		return returned
+				packagesdesclist[i] = packagesdesclist[i].replace("\n\t\t\t\t\t\t\t\t\t","")
+				packagesdesclist[i] = packagesdesclist[i].replace("\n\t\t\t\t\t\t\t\t","")
+				print packagesdesclist[i]
+				returned['description'] = packagesdesclist[i]
+			returnedArray.append(returned)
+		return returnedArray
 
 	def parseProjects(self, response):
 		scrapypath = scrapy.Selector(response)
@@ -46,15 +52,19 @@ class scrapGoPageSpider(scrapy.Spider):
 		projectsversiontextlist = scrapypath.xpath('*//a[contains(text(),"Go ")]/text()').extract()
 		projectsversiondatelist = scrapypath.xpath('*//small[contains(text(),"(")]/text()').extract()
 		projectsversiontextcount = len(projectsversiontextlist)
-		returned = {}
+		
+		returnedArray = []
 		for i in range(0, int(projectsversiontextcount)):
-			returned[str(projectsversiontextlist[i])] = {}
+			returned = {}
+			#returned[str(projectsversiontextlist[i])] = {}
+			returned['name'] = str(projectsversiontextlist[i])
 			if i <= len(projectsversionlinklist):
-				returned[str(projectsversiontextlist[i])]['url'] = baseurl + "/" + projectsversionlinklist[i] 
+				returned['url'] = baseurl + "/" + projectsversionlinklist[i] 
 			if i < len(projectsversiondatelist):
 				projectsversiondatelist[i] = projectsversiondatelist[i].replace("(","")
 				projectsversiondatelist[i] = projectsversiondatelist[i].replace(")","")
-				returned[str(projectsversiontextlist[i])]['date'] = projectsversiondatelist[i]
+				returned['date'] = projectsversiondatelist[i]
 			else:
-				returned[str(projectsversiontextlist[i])]['date'] = None
-		return returned
+				returned['date'] = None
+			returnedArray.append(returned)
+		return returnedArray
